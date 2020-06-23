@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+<table width="50%">
+<th>Domains lookup:</th>
+<tr>
+<td>
+	<form action="/domains_lookup" method="POST">
+		<textarea name="textbox" rows="10" cols="60"></textarea>
+		<button type="submit" class="btn btn-success btn-xs" name="domain_lookup" value="domain_lookup">Lookup Domains</button>
+</form>
+</td>
+</tr></table>
+{% endblock %}

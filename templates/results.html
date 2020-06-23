@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+{% block head %}  
+<script src="static/js/d3.v2.min.js" type="application/javascript"></script>
+<script src="static/js/jquery-3.3.1.min.js"></script>
+<script src="static/js/jquery.tablesorter.min.js"></script>
+<script>
+    $(function(){
+        $('table').tablesorter({
+            widgets        : ['zebra', 'columns'],
+            usNumberFormat : false,
+            sortReset      : true,
+            sortRestart    : true
+        });
+    });
+    </script>
+
+{% endblock %}
+
+{% block content %}
+<a href = "/">Go again</a>
+
+</br>
+</br>
+
+<table class="tablesorter">
+
+<table>
+    <thead>
+        <tr>
+            <th>Domain</th>
+            <th>Volume (30 days)</th>
+            <th>Popularity</th>
+            <th>Root Domain Popularity</th>
+            <th>Highest Query of 30 days</th>
+            <th>Total Queries 30 days</th>
+            <th>Content Categories</th>
+            <th>Security Categories</th>
+            <th>Samples/</br>Average score</th>
+            <th>VT (Postive/Total Scans)</th>
+            <th>Name Servers</th>
+        </tr>
+    </thead>
+<tr>
+<tbody id="tbody-sparkline">
+{% for results in data %}
+    <!-- 0: domain -->
+    <td>{{ results.domain }}</td>
+
+
+    <!-- 0: query graph -->
+        <td data-sparkline= "{{ results.query_results }}"></td>
+
+        <!-- 3: popularity -->
+        <td style="font-size: 9px;">{{results.popularity}}</td>
+        <td style="font-size: 9px;">{{results.root_popularity}}</td>
+        
+    <!-- 1 and 2: total queries in one day | total queries sum -->
+        <td style="font-size: 9px;">{{results.highest_query_30_days}}</td>
+        <td style="font-size: 9px;">{{results.total_queries_thirty_days}}</td>
+
+    <!-- 3: content categories -->
+        {% if results.content_categories |length == 0 %}
+        <td style="font-size: 9px;">none</td>
+        {% else %}
+        <td style="font-size: 9px;">
+            {% for r in results.content_categories %}
+            {{ r }}
+            {% endfor %}
+        </td>
+        {% endif %}
+
+    <!-- 4: security categories -->
+        <td style="font-size: 9px;">
+        {% if results.domain_already_blocked == True %}
+            <b style="color:#DF2222;">Blocked</b>: {{results.securitycategories}}
+        {% else %}
+            {{results.securitycategories}}
+        {% endif %}
+        </td>
+
+    <!-- 13: Malicious samples seen in investigate -->
+        {% if results.total_malicious_samples == 'none' %}
+        <td></td>
+        {% else %}
+        <td style="font-size: 9px;">{{results.total_malicious_samples}}, {{results.malicious_samples_average_threat_score}}</td>
+        {% endif %}
+
+    <!-- 14: virustotal scans -->
+        <td style="font-size: 9px;">{{results.vt_positivescans}}/{{results.vt_totalscans}}</td>
+
+    <!-- 15: nameservers -->
+
+        {% if results.nameservers == None %}
+        <td style="font-size: 9px;">None</td>
+        {% else %}
+        <td style="font-size: 9px;">{% for r in results.nameservers %}
+            {% if r == 'none' %}
+                {{r}}
+                {% else %}
+                {{r}}
+                {% endif %}
+            {% endfor %}
+        </td>
+        {% endif %}
+
+    </tr>
+{% endfor %}
+</table>
+</tbody>
+
+{% if notdomains|length > 0 %}
+<table>
+        <tr>
+        <th>
+        The following are not domains:
+        </th>
+    </tr>
+    <tr><td>
+        {% for r in notdomains %}
+            {{r}}</br>
+        {% endfor %}
+    </td></tr>
+</table>
+
+{% endif %}
+
+{% if faileddomains|length > 0 %}
+<table>
+        <tr>
+        <th>
+        The following failed:
+        </th>
+    </tr>
+    <tr><td>
+        {% for r in faileddomains %}
+            {{r}}</br>
+        {% endfor %}
+    </td></tr>
+</table>
+
+{% endif %}
+
+
+
+<script src="static/js/highcharts.js"></script>
+<script src="static/js/accessibility.js"></script>
+<script src="static/js/sparkline_script.js"></script>
+
+<script>
+    $(document).ready(function() { 
+    $("table").tablesorter({widthFixed: true, widgets: ['zebra']}).tablesorterPager({container: $("#pager")}); 
+}); 
+</script>
+
+{% endblock %}
